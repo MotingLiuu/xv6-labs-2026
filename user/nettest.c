@@ -896,6 +896,20 @@ countfree()
   return n;
 }
 
+void
+unbind_all()
+{
+  unbind(2000);
+  unbind(2001);
+  unbind(2004);
+  unbind(2005);
+  unbind(2006);
+  unbind(2007);
+  unbind(2008);
+  unbind(2009);
+  unbind(10000);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -904,20 +918,28 @@ main(int argc, char *argv[])
 
   if(strcmp(argv[1], "txone") == 0){
     txone();
+    unbind_all();
   } else if(strcmp(argv[1], "rx") == 0 || strcmp(argv[1], "rxburst") == 0){
     rx(argv[1]);
+    unbind_all();
   } else if(strcmp(argv[1], "rx2") == 0){
     rx2();
+    unbind_all();
   } else if(strcmp(argv[1], "tx32") == 0){
     tx32();
+    unbind_all();
   } else if(strcmp(argv[1], "ping0") == 0){
     ping0();
+    unbind_all();
   } else if(strcmp(argv[1], "ping1") == 0){
     ping1();
+    unbind_all();
   } else if(strcmp(argv[1], "ping2") == 0){
     ping2();
+    unbind_all();
   } else if(strcmp(argv[1], "ping3") == 0){
     ping3();
+    unbind_all();
   } else if(strcmp(argv[1], "grade") == 0){
     //
     // "python3 nettest.py grade" must already be running...
@@ -936,6 +958,7 @@ main(int argc, char *argv[])
     pause(2);
     dns();
     pause(2);
+    unbind_all();
     if ((free1 = countfree()) + 32 < free0) {
       printf("free: FAILED -- lost %d free pages; that's too many\n", free0 - free1);
     } else {
@@ -943,6 +966,7 @@ main(int argc, char *argv[])
     }
   } else if(strcmp(argv[1], "dns") == 0){
     dns();
+    unbind_all();
   } else {
     usage();
   }
