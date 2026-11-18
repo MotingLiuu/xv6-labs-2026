@@ -130,30 +130,51 @@ static void
 read_acquire_inner(struct rwspinlock *rwlk)
 {
   // Put your implementation here.
+  while (1) {
+    int rcount = __atomic_load_n(&rwlk->rcounter, __ATOMIC_ACQUIRE);
+    int wcount = __atomic_load_n(&rwlk->wcounter, __ATOMIC_ACQUIRE);
+    if (wcount != 0 || rcount == -1)
+      continue;
+    int expected = rcount;
+    if (__atomic_compare_exchange_n(&rwlk->rcounter, &expected, expected + 1, 1, __ATOMIC_ACQUIRE, __ATOMIC_ACQUIRE))
+      break;
+  }
 }
 
 static void
 read_release_inner(struct rwspinlock *rwlk)
 {
   // Put your implementation here.
+  __atomic_fetch_sub(&rwlk->rcounter, 1, __ATOMIC_RELEASE);
 }
 
 static void
 write_acquire_inner(struct rwspinlock *rwlk)
 {
   // Put your implementation here.
+  __atomic_fetch_add(&rwlk->wcounter, 1, __ATOMIC_ACQ_REL);
+  while (1) {
+      int expected = 0;
+      if (__atomic_compare_exchange_n(&rwlk->rcounter, &expected, -1, 1, __ATOMIC_ACQUIRE, __ATOMIC_ACQUIRE)) {
+          break;
+      }
+  }
 }
 
 static void
 write_release_inner(struct rwspinlock *rwlk)
 {
   // Put your implementation here.
+  __atomic_fetch_sub(&rwlk->wcounter, 1, __ATOMIC_ACQ_REL);
+  __atomic_store_n(&rwlk->rcounter, 0, __ATOMIC_RELEASE);
 }
 
 void
 initrwlock(struct rwspinlock *rwlk)
 {
   // Put your implementation here.
+  rwlk->rcounter = 0;
+  rwlk->wcounter = 0;
 }
 
 void
